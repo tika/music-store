@@ -2,8 +2,9 @@ import React, { useEffect, useRef, useState } from "react";
 import styles from "../styles/Home.module.css";
 import { getStorage, ref, listAll, getDownloadURL } from "@firebase/storage";
 import { firebaseApp } from "../firebase";
-import { PauseIcon, PlayIcon } from "@heroicons/react/solid";
-import { DownloadIcon } from "@heroicons/react/outline";
+import { PauseIcon, PlayIcon, UserCircleIcon } from "@heroicons/react/solid";
+import { DownloadIcon, UploadIcon } from "@heroicons/react/outline";
+import { InfinitySpin } from "react-loader-spinner";
 
 const storage = getStorage(firebaseApp);
 
@@ -153,6 +154,7 @@ export default function Home() {
         <div>
           <h1>prodbytika</h1>
           <h2>beats produced by me</h2>
+
           {items.map((item, i) => {
             return (
               <div key={i}>
@@ -221,7 +223,7 @@ export default function Home() {
         </div>
       ) : (
         <div>
-          <h1>loading...</h1>
+          <InfinitySpin width={"10em"} color="orange" />
         </div>
       )}
     </div>
