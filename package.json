@@ -12,6 +12,7 @@
     "generate": "prisma generate"
   },
   "dependencies": {
+    "@heroicons/react": "^1.0.6",
     "argon2": "^0.28.5",
     "cookie": "^0.4.2",
     "dayjs": "^1.10.8",

@@ -1,5 +1,5 @@
 import type { NextPage } from "next";
-import { useEffect, useState } from "react";
+import { LegacyRef, useEffect, useRef, useState } from "react";
 import { useDownloadURL } from "react-firebase-hooks/storage";
 import {
   getStorage,
@@ -9,30 +9,39 @@ import {
   getDownloadURL,
 } from "@firebase/storage";
 import { firebaseApp } from "../firebase";
+import { PauseIcon, PlayIcon } from "@heroicons/react/solid";
+import { DownloadIcon } from "@heroicons/react/outline";
 
 const storage = getStorage(firebaseApp);
 
 interface MusicItem {
   name: string;
-  url: string;
+  path: string;
   type: string;
 }
 
+function getBeatName(fileName: string) {
+  return fileName.substring(0, fileName.length - 4);
+}
+
 const Home: NextPage = () => {
-  const [value, lLoading, error] = useDownloadURL(
-    ref(storage, "[instrumental] united demo.wav")
-  );
+  const musicRef = useRef<HTMLAudioElement | null>(null);
   const [items, setItems] = useState<MusicItem[]>([]);
   const [loading, setLoading] = useState(true);
+  const [playingIndex, setPlayingIndex] = useState<
+    [number, string] | undefined
+  >(undefined);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [currentTime, setCurrentTime] = useState<number>(-1);
+  const [duration, setDuration] = useState<number>(-1);
 
   useEffect(() => {
     listAll(ref(storage, "")).then(async (res) => {
       const newItems = await Promise.all(
         res.items.map(async (item) => {
-          const url = await getDownloadURL(ref(storage, item.fullPath));
           return {
-            name: item.name,
-            url,
+            name: getBeatName(item.name),
+            path: item.fullPath,
             type: item.name.endsWith(".wav") ? "audio/wav" : "audio/mpeg",
           };
         })
@@ -44,19 +53,116 @@ const Home: NextPage = () => {
     });
   }, []);
 
+  useEffect(() => {
+    const c = musicRef.current;
+    if (!c) return;
+
+    function setAudioData() {
+      if (musicRef.current) {
+        const c = musicRef.current;
+        setDuration(c.duration);
+        setCurrentTime(c.currentTime);
+      }
+    }
+
+    function setAudioTime() {
+      if (musicRef.current) {
+        const c = musicRef.current;
+        setCurrentTime(c?.currentTime);
+      }
+    }
+
+    c.addEventListener("loadeddata", setAudioData);
+    c.addEventListener("timeupdate", setAudioTime);
+
+    return () => {
+      c.removeEventListener("loadeddata", setAudioData);
+      c.removeEventListener("timeupdate", setAudioTime);
+    };
+  });
+
+  console.log(currentTime);
+
+  async function play(index: number) {
+    setLoading(true);
+    getDownloadURL(ref(storage, items[index].path)).then((url) => {
+      setPlayingIndex([index, url]);
+      setIsPlaying(true);
+
+      setLoading(false);
+
+      if (musicRef.current) {
+        musicRef.current.play();
+      }
+    });
+  }
+
+  function clear() {
+    if (musicRef.current) {
+      musicRef.current.pause();
+    }
+
+    setPlayingIndex(undefined);
+    setIsPlaying(false);
+  }
+
   return (
     <div>
-      {!loading && !lLoading ? (
+      {!loading ? (
         <div>
-          <h1>Hello World!</h1>
-          <h2>Music:</h2>
-          {items.map((item) => {
+          <h1>prodbytika</h1>
+          <h2>beats produced by me</h2>
+          {items.map((item, i) => {
             return (
-              <audio controls key={item.name}>
-                <source src={item.url} type={item.type} />
-              </audio>
+              <div>
+                <p>{item.name}</p>
+                {playingIndex && playingIndex[0] === i && isPlaying ? (
+                  <PauseIcon width={"2em"} onClick={() => clear()} />
+                ) : (
+                  <PlayIcon width={"2em"} onClick={() => play(i)} />
+                )}
+              </div>
             );
           })}
+          {playingIndex && (
+            <div>
+              <audio ref={musicRef}>
+                <source src={playingIndex && playingIndex[1]} />
+                Your browser does not support the <code>audio</code> element.
+              </audio>
+              {items[playingIndex[0]].name}
+              {isPlaying ? (
+                <PauseIcon
+                  width={"2em"}
+                  onClick={() => {
+                    if (playingIndex) {
+                      if (musicRef.current) {
+                        musicRef.current.pause();
+                      }
+
+                      setIsPlaying(false);
+                    }
+                  }}
+                />
+              ) : (
+                <PlayIcon
+                  width={"2em"}
+                  onClick={() => {
+                    if (playingIndex) {
+                      if (musicRef.current) {
+                        musicRef.current.play();
+                      }
+
+                      setIsPlaying(true);
+                    }
+                  }}
+                />
+              )}
+              <a href={playingIndex && playingIndex[1]} download>
+                <DownloadIcon width={"2em"} />
+              </a>
+            </div>
+          )}
         </div>
       ) : (
         <div>
