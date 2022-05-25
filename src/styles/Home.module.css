@@ -108,9 +108,21 @@
   margin-left: 0.5rem;
 }
 
-@media (max-width: 600px) {
-  .grid {
-    width: 100%;
-    flex-direction: column;
-  }
+.progress {
+  height: 100%;
+  width: 100%;
+  background-color: #e0e0de;
+  border-radius: 100em;
+}
+
+.progress > div {
+  height: 100%;
+  background-color: mediumslateblue;
+  border-radius: inherit;
+  text-align: right;
+}
+
+.progressContainer {
+  width: 20em;
+  height: 5px;
 }

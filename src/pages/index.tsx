@@ -1,13 +1,6 @@
-import type { NextPage } from "next";
-import { LegacyRef, useEffect, useRef, useState } from "react";
-import { useDownloadURL } from "react-firebase-hooks/storage";
-import {
-  getStorage,
-  ref,
-  listAll,
-  StorageReference,
-  getDownloadURL,
-} from "@firebase/storage";
+import { useEffect, useRef, useState } from "react";
+import styles from "../styles/Home.module.css";
+import { getStorage, ref, listAll, getDownloadURL } from "@firebase/storage";
 import { firebaseApp } from "../firebase";
 import { PauseIcon, PlayIcon } from "@heroicons/react/solid";
 import { DownloadIcon } from "@heroicons/react/outline";
@@ -24,7 +17,15 @@ function getBeatName(fileName: string) {
   return fileName.substring(0, fileName.length - 4);
 }
 
-const Home: NextPage = () => {
+function getTime(time: number) {
+  return `${Math.floor(time / 60)}:${padZero(Math.floor(time % 60))}`;
+}
+
+function padZero(z: number) {
+  return z.toString().length == 1 ? `0${z}` : z;
+}
+
+export default function Home() {
   const musicRef = useRef<HTMLAudioElement | null>(null);
   const [items, setItems] = useState<MusicItem[]>([]);
   const [loading, setLoading] = useState(true);
@@ -81,8 +82,6 @@ const Home: NextPage = () => {
     };
   });
 
-  console.log(currentTime);
-
   async function play(index: number) {
     setLoading(true);
     getDownloadURL(ref(storage, items[index].path)).then((url) => {
@@ -130,6 +129,17 @@ const Home: NextPage = () => {
                 <source src={playingIndex && playingIndex[1]} />
                 Your browser does not support the <code>audio</code> element.
               </audio>
+              <div className={styles.progressContainer}>
+                <div className={styles.progress}>
+                  <div
+                    style={{ width: `${(currentTime / duration) * 100}%` }}
+                  ></div>
+                </div>
+              </div>
+              <h1>
+                {getTime(currentTime)}/{getTime(duration)}
+              </h1>
+
               {items[playingIndex[0]].name}
               {isPlaying ? (
                 <PauseIcon
@@ -171,6 +181,4 @@ const Home: NextPage = () => {
       )}
     </div>
   );
-};
-
-export default Home;
+}
