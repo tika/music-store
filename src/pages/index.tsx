@@ -155,7 +155,7 @@ export default function Home() {
           <h2>beats produced by me</h2>
           {items.map((item, i) => {
             return (
-              <div>
+              <div key={i}>
                 <p>{item.name}</p>
                 {playingIndex && playingIndex[0] === i && isPlaying ? (
                   <PauseIcon width={"2em"} onClick={() => clear()} />
