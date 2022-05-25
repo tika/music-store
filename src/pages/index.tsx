@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import styles from "../styles/Home.module.css";
 import { getStorage, ref, listAll, getDownloadURL } from "@firebase/storage";
 import { firebaseApp } from "../firebase";
@@ -10,7 +10,6 @@ const storage = getStorage(firebaseApp);
 interface MusicItem {
   name: string;
   path: string;
-  type: string;
 }
 
 function getBeatName(fileName: string) {
@@ -27,6 +26,8 @@ function padZero(z: number) {
 
 export default function Home() {
   const musicRef = useRef<HTMLAudioElement | null>(null);
+  const barRef = useRef<HTMLDivElement | null>(null);
+
   const [items, setItems] = useState<MusicItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [playingIndex, setPlayingIndex] = useState<
@@ -43,7 +44,6 @@ export default function Home() {
           return {
             name: getBeatName(item.name),
             path: item.fullPath,
-            type: item.name.endsWith(".wav") ? "audio/wav" : "audio/mpeg",
           };
         })
       );
@@ -105,6 +105,48 @@ export default function Home() {
     setIsPlaying(false);
   }
 
+  function calcClickedTime(event: MouseEvent) {
+    const clickPositionInPage = event.pageX;
+    const bar = barRef.current;
+
+    if (!bar) return -1;
+
+    const barStart = bar.getBoundingClientRect().left + window.scrollX;
+    const barWidth = bar.offsetWidth;
+    const clickPositionInBar = clickPositionInPage - barStart;
+    const timePerPixel = duration / barWidth;
+    const time = timePerPixel * clickPositionInBar;
+
+    if (time > duration) return duration;
+    if (time < 0) return 0;
+    return time;
+  }
+
+  function timeUpdate(newTime: number) {
+    setCurrentTime(newTime);
+    if (musicRef.current) {
+      musicRef.current.currentTime = newTime;
+
+      if (musicRef.current.ended) {
+        musicRef.current.play();
+      }
+    }
+  }
+
+  function handleTimeDrag(event: MouseEvent) {
+    timeUpdate(calcClickedTime(event));
+
+    function updateTimeOnMove(eMove: MouseEvent) {
+      timeUpdate(calcClickedTime(eMove));
+    }
+
+    document.addEventListener("mousemove", updateTimeOnMove);
+
+    document.addEventListener("mouseup", () => {
+      document.removeEventListener("mousemove", updateTimeOnMove);
+    });
+  }
+
   return (
     <div>
       {!loading ? (
@@ -129,13 +171,16 @@ export default function Home() {
                 <source src={playingIndex && playingIndex[1]} />
                 Your browser does not support the <code>audio</code> element.
               </audio>
-              <div className={styles.progressContainer}>
-                <div className={styles.progress}>
-                  <div
-                    style={{ width: `${(currentTime / duration) * 100}%` }}
-                  ></div>
-                </div>
-              </div>
+              <div
+                className={styles.progressContainer}
+                style={{
+                  background: `linear-gradient(to right, blue ${
+                    (currentTime / duration) * 100
+                  }%, white 0)`,
+                }}
+                onMouseDown={(e) => handleTimeDrag(e as any)}
+                ref={barRef}
+              />
               <h1>
                 {getTime(currentTime)}/{getTime(duration)}
               </h1>
