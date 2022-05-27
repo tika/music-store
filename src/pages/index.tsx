@@ -1,229 +1,184 @@
 import React, { useEffect, useRef, useState } from "react";
 import styles from "../styles/Home.module.css";
-import { getStorage, ref, listAll, getDownloadURL } from "@firebase/storage";
+import {
+  getStorage,
+  ref,
+  listAll,
+  getDownloadURL,
+  getMetadata,
+} from "@firebase/storage";
 import { firebaseApp } from "../firebase";
-import { PauseIcon, PlayIcon, UserCircleIcon } from "@heroicons/react/solid";
-import { DownloadIcon, UploadIcon } from "@heroicons/react/outline";
 import { InfinitySpin } from "react-loader-spinner";
+import Image from "next/image";
+import { Beat as BeatComponent } from "../components/beat";
+import { Beat } from "../app";
+import { Playbar } from "../components/playbar";
+import { getTrackColor } from "../app/color";
 
 const storage = getStorage(firebaseApp);
-
-interface MusicItem {
-  name: string;
-  path: string;
-}
 
 function getBeatName(fileName: string) {
   return fileName.substring(0, fileName.length - 4);
 }
 
-function getTime(time: number) {
-  return `${Math.floor(time / 60)}:${padZero(Math.floor(time % 60))}`;
-}
-
-function padZero(z: number) {
-  return z.toString().length == 1 ? `0${z}` : z;
+function isSame(beatOne: Beat | undefined, beatTwo: Beat | undefined) {
+  if (!beatOne || !beatTwo) return false;
+  return beatOne.path === beatTwo.path;
 }
 
 export default function Home() {
-  const musicRef = useRef<HTMLAudioElement | null>(null);
-  const barRef = useRef<HTMLDivElement | null>(null);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
 
-  const [items, setItems] = useState<MusicItem[]>([]);
+  const [beats, setBeats] = useState<Beat[]>([]);
+  const [selectedBeat, setSelectedBeat] = useState<Beat | undefined>(undefined);
+
+  const [buffering, setBuffering] = useState(false);
   const [loading, setLoading] = useState(true);
-  const [playingIndex, setPlayingIndex] = useState<
-    [number, string] | undefined
-  >(undefined);
-  const [isPlaying, setIsPlaying] = useState(false);
-  const [currentTime, setCurrentTime] = useState<number>(-1);
-  const [duration, setDuration] = useState<number>(-1);
+
+  const [currentTime, setCurrentTime] = useState<number>(0);
+  const [duration, setDuration] = useState<number>(0);
+  const [playing, setPlaying] = useState(false);
 
   useEffect(() => {
     listAll(ref(storage, "")).then(async (res) => {
-      const newItems = await Promise.all(
-        res.items.map(async (item) => {
+      const fullBeats: typeof beats = await Promise.all(
+        res.items.map(async (beat) => {
+          const metadata = await getMetadata(ref(storage, beat.fullPath));
           return {
-            name: getBeatName(item.name),
-            path: item.fullPath,
+            name: getBeatName(beat.name),
+            path: beat.fullPath,
+            creationDate: new Date(metadata.timeCreated), // todo: have custom timecreated
           };
         })
       );
 
-      setItems(newItems);
+      setBeats(fullBeats);
 
       setLoading(false);
     });
   }, []);
 
+  // audio
   useEffect(() => {
-    const c = musicRef.current;
-    if (!c) return;
+    const audio = audioRef.current;
+    if (!audio) return;
 
     function setAudioData() {
-      if (musicRef.current) {
-        const c = musicRef.current;
-        setDuration(c.duration);
-        setCurrentTime(c.currentTime);
+      const audio = audioRef.current;
+
+      if (audio) {
+        setDuration(audio.duration);
+        setCurrentTime(audio.currentTime);
       }
     }
 
     function setAudioTime() {
-      if (musicRef.current) {
-        const c = musicRef.current;
-        setCurrentTime(c?.currentTime);
+      const audio = audioRef.current;
+
+      if (audio) {
+        setCurrentTime(audio.currentTime);
       }
     }
 
-    c.addEventListener("loadeddata", setAudioData);
-    c.addEventListener("timeupdate", setAudioTime);
+    audio.addEventListener("loadeddata", setAudioData);
+    audio.addEventListener("timeupdate", setAudioTime);
 
     return () => {
-      c.removeEventListener("loadeddata", setAudioData);
-      c.removeEventListener("timeupdate", setAudioTime);
+      audio.removeEventListener("loadeddata", setAudioData);
+      audio.removeEventListener("timeupdate", setAudioTime);
     };
   });
 
-  async function play(index: number) {
-    setLoading(true);
-    getDownloadURL(ref(storage, items[index].path)).then((url) => {
-      setPlayingIndex([index, url]);
-      setIsPlaying(true);
+  async function play(beat: Beat) {
+    clear();
+    setBuffering(true);
 
-      setLoading(false);
+    getDownloadURL(ref(storage, beat.path)).then((url) => {
+      setSelectedBeat({ ...beat, url });
+      if (audioRef.current) audioRef.current.play();
 
-      if (musicRef.current) {
-        musicRef.current.play();
-      }
+      setPlaying(true);
+      setBuffering(false);
     });
   }
 
   function clear() {
-    if (musicRef.current) {
-      musicRef.current.pause();
-    }
-
-    setPlayingIndex(undefined);
-    setIsPlaying(false);
+    if (audioRef.current) audioRef.current.pause();
+    setPlaying(false);
+    setSelectedBeat(undefined);
   }
 
-  function calcClickedTime(event: MouseEvent) {
-    const clickPositionInPage = event.pageX;
-    const bar = barRef.current;
-
-    if (!bar) return -1;
-
-    const barStart = bar.getBoundingClientRect().left + window.scrollX;
-    const barWidth = bar.offsetWidth;
-    const clickPositionInBar = clickPositionInPage - barStart;
-    const timePerPixel = duration / barWidth;
-    const time = timePerPixel * clickPositionInBar;
-
-    if (time > duration) return duration;
-    if (time < 0) return 0;
-    return time;
+  function pause() {
+    setPlaying(false);
+    if (audioRef.current) audioRef.current.pause();
   }
 
-  function timeUpdate(newTime: number) {
-    setCurrentTime(newTime);
-    if (musicRef.current) {
-      musicRef.current.currentTime = newTime;
-
-      if (musicRef.current.ended) {
-        musicRef.current.play();
-      }
-    }
-  }
-
-  function handleTimeDrag(event: MouseEvent) {
-    timeUpdate(calcClickedTime(event));
-
-    function updateTimeOnMove(eMove: MouseEvent) {
-      timeUpdate(calcClickedTime(eMove));
-    }
-
-    document.addEventListener("mousemove", updateTimeOnMove);
-
-    document.addEventListener("mouseup", () => {
-      document.removeEventListener("mousemove", updateTimeOnMove);
-    });
+  async function resume() {
+    setPlaying(true);
+    if (audioRef.current) audioRef.current.play();
   }
 
   return (
-    <div>
+    <div className={styles.container}>
       {!loading ? (
-        <div>
-          <h1>prodbytika</h1>
-          <h2>beats produced by me</h2>
-
-          {items.map((item, i) => {
-            return (
-              <div key={i}>
-                <p>{item.name}</p>
-                {playingIndex && playingIndex[0] === i && isPlaying ? (
-                  <PauseIcon width={"2em"} onClick={() => clear()} />
-                ) : (
-                  <PlayIcon width={"2em"} onClick={() => play(i)} />
-                )}
-              </div>
-            );
-          })}
-          {playingIndex && (
-            <div>
-              <audio ref={musicRef}>
-                <source src={playingIndex && playingIndex[1]} />
-                Your browser does not support the <code>audio</code> element.
-              </audio>
-              <div
-                className={styles.progressContainer}
-                style={{
-                  background: `linear-gradient(to right, blue ${
-                    (currentTime / duration) * 100
-                  }%, white 0)`,
-                }}
-                onMouseDown={(e) => handleTimeDrag(e as any)}
-                ref={barRef}
+        <div className={styles.innerContainer}>
+          <div className={styles.header}>
+            <div className={styles.pfp}>
+              <Image
+                className={styles.pfpImage}
+                alt={"Insta pfp"}
+                layout={"fill"}
+                src={
+                  "https://scontent-lhr8-1.cdninstagram.com/v/t51.2885-19/240620311_203244768496134_1421356717336519585_n.jpg?stp=dst-jpg_s320x320&_nc_ht=scontent-lhr8-1.cdninstagram.com&_nc_cat=106&_nc_ohc=5xJpn6wqIecAX8svpVA&edm=ABfd0MgBAAAA&ccb=7-5&oh=00_AT_WoTwMAlYCxODM2hDBktPNFP_wGXBMJ4amTBUIKqtNRg&oe=62968674&_nc_sid=7bff83.png"
+                }
               />
-              <h1>
-                {getTime(currentTime)}/{getTime(duration)}
-              </h1>
-
-              {items[playingIndex[0]].name}
-              {isPlaying ? (
-                <PauseIcon
-                  width={"2em"}
-                  onClick={() => {
-                    if (playingIndex) {
-                      if (musicRef.current) {
-                        musicRef.current.pause();
-                      }
-
-                      setIsPlaying(false);
-                    }
-                  }}
-                />
-              ) : (
-                <PlayIcon
-                  width={"2em"}
-                  onClick={() => {
-                    if (playingIndex) {
-                      if (musicRef.current) {
-                        musicRef.current.play();
-                      }
-
-                      setIsPlaying(true);
-                    }
-                  }}
-                />
-              )}
-              <a href={playingIndex && playingIndex[1]} download>
-                <DownloadIcon width={"2em"} />
-              </a>
             </div>
+            <div className={styles.headerText}>
+              <h1>prodbytika</h1>
+              <h2>beats produced by me</h2>
+            </div>
+          </div>
+
+          <div className={styles.beats}>
+            {beats.map((beat, i) => {
+              return (
+                <BeatComponent
+                  playing={isSame(selectedBeat, beat) && playing}
+                  key={i}
+                  beat={beat}
+                  play={() =>
+                    isSame(selectedBeat, beat) && !playing
+                      ? resume()
+                      : play(beat)
+                  }
+                  selected={isSame(selectedBeat, beat)}
+                  pause={pause}
+                />
+              );
+            })}
+          </div>
+
+          <Playbar
+            playing={playing}
+            beat={selectedBeat}
+            currentTime={currentTime}
+            duration={duration}
+            currentColor={getTrackColor(selectedBeat ? selectedBeat.name : "")}
+            buffering={buffering}
+            play={resume}
+            pause={pause}
+          />
+
+          {selectedBeat && (
+            <audio ref={audioRef}>
+              <source src={selectedBeat.url} />
+              Your browser does not support the <code>audio</code> element.
+            </audio>
           )}
         </div>
       ) : (
-        <div>
-          <InfinitySpin width={"10em"} color="orange" />
+        <div className={styles.loader}>
+          <InfinitySpin width={"10em"} color={"#64C6CA"} />
         </div>
       )}
     </div>

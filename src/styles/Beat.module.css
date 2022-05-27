@@ -1,0 +1,66 @@
+.container {
+    width: 10em;
+    position: relative;
+}
+
+.cover {
+    width: 10em;
+    height: 10em;
+    border-radius: 0.5em;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.title {
+    font-weight: 600;
+    font-size: 1em;
+}
+
+.date {
+    color: #A5A5A5;
+}
+
+.play {
+    z-index: 10;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 10em;
+    height: 10em;
+    display: flex;
+    backdrop-filter: blur(10px);
+    justify-content: center;
+    align-items: center;
+    border-radius: 0.5em;
+}
+
+.playIcon {
+    width: 3em;
+    height: 3em;
+    color: white;
+}
+
+.enter {
+    transition: 500ms opacity;
+}
+
+.enterFrom {
+    opacity: 0;
+}
+
+.enterTo {
+    opacity: 100;
+}
+
+.leave {
+    transition: 500ms opacity;
+}
+
+.leaveFrom {
+    opacity: 100;
+}
+
+.leaveTo {
+    opacity: 0;
+}

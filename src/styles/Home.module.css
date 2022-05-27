@@ -1,128 +1,66 @@
 .container {
-  padding: 0 2rem;
-}
-
-.main {
-  min-height: 100vh;
-  padding: 4rem 0;
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-}
-
-.footer {
-  display: flex;
-  flex: 1;
-  padding: 2rem 0;
-  border-top: 1px solid #eaeaea;
-  justify-content: center;
-  align-items: center;
-}
-
-.footer a {
+  overflow: auto;
   display: flex;
   justify-content: center;
-  align-items: center;
-  flex-grow: 1;
 }
 
-.title a {
-  color: #0070f3;
-  text-decoration: none;
+.innerContainer {
+  width: 50vw;
 }
 
-.title a:hover,
-.title a:focus,
-.title a:active {
-  text-decoration: underline;
-}
-
-.title {
-  margin: 0;
-  line-height: 1.15;
-  font-size: 4rem;
-}
-
-.title,
-.description {
-  text-align: center;
-}
-
-.description {
-  margin: 4rem 0;
-  line-height: 1.5;
-  font-size: 1.5rem;
-}
-
-.code {
-  background: #fafafa;
-  border-radius: 5px;
-  padding: 0.75rem;
-  font-size: 1.1rem;
-  font-family: Menlo, Monaco, Lucida Console, Liberation Mono, DejaVu Sans Mono,
-    Bitstream Vera Sans Mono, Courier New, monospace;
-}
-
-.grid {
+.header {
   display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-wrap: wrap;
-  max-width: 800px;
-}
-
-.card {
-  margin: 1rem;
-  padding: 1.5rem;
-  text-align: left;
-  color: inherit;
-  text-decoration: none;
-  border: 1px solid #eaeaea;
-  border-radius: 10px;
-  transition: color 0.15s ease, border-color 0.15s ease;
-  max-width: 300px;
-}
-
-.card:hover,
-.card:focus,
-.card:active {
-  color: #0070f3;
-  border-color: #0070f3;
-}
-
-.card h2 {
-  margin: 0 0 1rem 0;
-  font-size: 1.5rem;
-}
-
-.card p {
-  margin: 0;
-  font-size: 1.25rem;
-  line-height: 1.5;
-}
-
-.logo {
-  height: 1em;
-  margin-left: 0.5rem;
-}
-
-.progress {
-  height: 100%;
+  flex-direction: row;
+  position: fixed;
+  z-index: 50;
   width: 100%;
-  background-color: #e0e0de;
-  border-radius: 100em;
+  padding: 2em 0;
+  top: 0;
+  align-items: center;
+  gap: 1em;
+  background-color: white;
 }
 
-.progress > div {
-  height: 100%;
-  background-color: mediumslateblue;
-  border-radius: inherit;
-  text-align: right;
+.headerText > h2 {
+  font-weight: 400;
+  font-size: 1em;
+}
+
+.pfp {
+  position: relative;
+  width: 3em;
+  height: 3em;
+}
+
+.pfpImage {
+  border-radius: 100em;
 }
 
 .progressContainer {
   width: 20em;
   height: 5px;
+}
+
+.beats {
+  display: flex;
+  column-gap: 1em;
+  row-gap: 1em;
+  margin-top: 8em;
+  flex-wrap: wrap;
+}
+
+.loader {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.playbar {
+  width: 100vw;
+  height: 100vh;
+  z-index: 10;
+  top: 0;
+  left: 0;
+  position: absolute;
 }

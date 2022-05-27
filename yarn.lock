@@ -556,6 +556,11 @@
     protobufjs "^6.10.0"
     yargs "^16.2.0"
 
+"@headlessui/react@^1.6.3":
+  version "1.6.3"
+  resolved "https://registry.yarnpkg.com/@headlessui/react/-/react-1.6.3.tgz#6e52477ea3aee7d99f153b98c1b41765ed77db3d"
+  integrity sha512-WNu/ypGzl0JmJ+sD34KtdycEu2n7EZjKFx2rq6fivsszPdoEyOVZ/GYQMJ437dfAJI0/ZxoRYfrOVduZHjlokQ==
+
 "@heroicons/react@^1.0.6":
   version "1.0.6"
   resolved "https://registry.yarnpkg.com/@heroicons/react/-/react-1.0.6.tgz#35dd26987228b39ef2316db3b1245c42eb19e324"
@@ -1023,6 +1028,11 @@ balanced-match@^1.0.0:
   version "1.0.2"
   resolved "https://registry.yarnpkg.com/balanced-match/-/balanced-match-1.0.2.tgz#e83e3a7e3f300b34cb9d87f615fa0cbf357690ee"
   integrity sha512-3oSeUO0TMV67hN1AmbXsK4yaqU7tjiHlbxRDZOpH0KW9+CeX4bRAaX0Anxt0tx2MrpRpWwQaPwIlISEJhYU5Pw==
+
+boring-avatars@^1.6.3:
+  version "1.6.3"
+  resolved "https://registry.yarnpkg.com/boring-avatars/-/boring-avatars-1.6.3.tgz#5f391502ae15393a156ebe7a7140d2a6a832c1b2"
+  integrity sha512-0gtu0dfk7uXp0xEYJ5RLAQO9HhYOVQOg7EArBy4Uqphzn5Oz15a/LztInowhvAU7W1NHYxUheLHKGN7rw/XEDA==
 
 brace-expansion@^1.1.7:
   version "1.1.11"
