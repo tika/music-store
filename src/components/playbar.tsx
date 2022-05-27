@@ -2,7 +2,7 @@ import { Beat } from "../app";
 import styles from "../styles/Playbar.module.css";
 import { formatDate, getTime } from "../app/time";
 import { DownloadIcon, PauseIcon, PlayIcon } from "@heroicons/react/outline";
-import React from "react";
+import React, { useRef } from "react";
 import { TailSpin } from "react-loader-spinner";
 
 interface PlaybarProps {
@@ -17,9 +17,12 @@ interface PlaybarProps {
 
   play(): void;
   pause(): void;
+  setCurrentTime(val: number): void;
 }
 
 export function Playbar(props: PlaybarProps) {
+  const barRef = useRef<HTMLDivElement | null>(null);
+
   function getProgressGradient(
     currentTime: number,
     duration: number,
@@ -28,6 +31,45 @@ export function Playbar(props: PlaybarProps) {
     return `linear-gradient(to right, ${currentColor} ${
       (currentTime / duration) * 100
     }%, white 0)`;
+  }
+
+  function calcClickedTime(event: MouseEvent) {
+    const clickPositionInPage = event.pageX;
+    const bar = barRef.current;
+
+    if (!bar) return -1;
+
+    const barStart = bar.getBoundingClientRect().left + window.scrollX;
+    const barWidth = bar.offsetWidth;
+    const clickPositionInBar = clickPositionInPage - barStart;
+    const timePerPixel = props.duration / barWidth;
+    const time = timePerPixel * clickPositionInBar;
+
+    if (time > props.duration) return props.duration;
+    if (time < 0) return 0;
+    return time;
+  }
+
+  function timeUpdate(newTime: number) {
+    props.setCurrentTime(newTime);
+  }
+
+  function handleTimeDrag(event: MouseEvent) {
+    timeUpdate(calcClickedTime(event));
+
+    function updateTimeOnMove(eMove: MouseEvent) {
+      timeUpdate(calcClickedTime(eMove));
+    }
+
+    document.addEventListener("mousemove", updateTimeOnMove);
+
+    document.addEventListener("mouseup", () => {
+      if (!props.playing) {
+        props.play();
+      }
+
+      document.removeEventListener("mousemove", updateTimeOnMove);
+    });
   }
 
   return (
@@ -48,6 +90,8 @@ export function Playbar(props: PlaybarProps) {
       <div className={styles.progressContainer}>
         <div
           className={styles.progress}
+          ref={barRef}
+          onMouseDown={(e) => handleTimeDrag(e as any)}
           style={{
             background: props.beat
               ? getProgressGradient(

@@ -8,7 +8,6 @@ import { Transition } from "@headlessui/react";
 import { formatDate } from "../app/time";
 
 interface BeatProps {
-  key: string | number;
   beat: Beat;
   playing: boolean;
   play(): void;
@@ -22,13 +21,12 @@ export function Beat(props: BeatProps) {
 
   return (
     <div
-      key={props.key}
       className={styles.container}
       onMouseEnter={() => setHover(true)}
       onMouseLeave={() => setHover(false)}
     >
       <Transition
-        show={props.selected || hover}
+        show={(props.selected && props.playing) || hover}
         enter={styles.enter}
         enterFrom={styles.enterFrom}
         enterTo={styles.enterTo}

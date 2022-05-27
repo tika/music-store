@@ -77,11 +77,17 @@ export default function Home() {
 
       if (audio) {
         setCurrentTime(audio.currentTime);
+
+        if (audio.ended) {
+          setPlaying(false);
+        }
       }
     }
 
     audio.addEventListener("loadeddata", setAudioData);
     audio.addEventListener("timeupdate", setAudioTime);
+    audio.addEventListener("pause", pause);
+    audio.addEventListener("play", resume);
 
     return () => {
       audio.removeEventListener("loadeddata", setAudioData);
@@ -109,11 +115,15 @@ export default function Home() {
   }
 
   function pause() {
+    if (!playing) return;
+
     setPlaying(false);
     if (audioRef.current) audioRef.current.pause();
   }
 
   async function resume() {
+    if (playing) return;
+
     setPlaying(true);
     if (audioRef.current) audioRef.current.play();
   }
@@ -167,6 +177,13 @@ export default function Home() {
             buffering={buffering}
             play={resume}
             pause={pause}
+            setCurrentTime={(val) => {
+              setCurrentTime(val);
+              const audio = audioRef.current;
+
+              if (!audio) return;
+              audio.currentTime = val;
+            }}
           />
 
           {selectedBeat && (
