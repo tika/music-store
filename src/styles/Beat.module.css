@@ -64,3 +64,20 @@
 .leaveTo {
     opacity: 0;
 }
+
+@media (max-width: 670px) {
+    .container {
+        width: 15em;
+        position: relative;
+    }
+
+    .cover {
+        width: 15em;
+        height: 15em;
+    }
+
+    .play {
+        width: 15em;
+        height: 15em;
+    }
+}

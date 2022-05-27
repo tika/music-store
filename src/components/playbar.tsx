@@ -32,6 +32,8 @@ export function Playbar(props: PlaybarProps) {
 
   return (
     <div className={styles.container}>
+      <div className={styles.containerBackground} />
+
       <div className={styles.trackInfo}>
         <h1
           className={styles.name}
