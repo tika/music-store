@@ -18,9 +18,11 @@ export function formatDate(date: Date) {
 
   let dateSuffix = "th";
 
-  if (dateString.endsWith("1")) dateSuffix = "st";
-  if (dateString.endsWith("2")) dateSuffix = "nd";
-  if (dateString.endsWith("3")) dateSuffix = "rd";
+  if (date.getDate() < 10 || date.getDate() > 20) {
+    if (dateString.endsWith("1")) dateSuffix = "st";
+    if (dateString.endsWith("2")) dateSuffix = "nd";
+    if (dateString.endsWith("3")) dateSuffix = "rd";
+  }
 
   return `${dateString}${dateSuffix} ${
     months[date.getMonth()]

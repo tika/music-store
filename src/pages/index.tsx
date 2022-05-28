@@ -6,6 +6,7 @@ import {
   listAll,
   getDownloadURL,
   getMetadata,
+  FullMetadata,
 } from "@firebase/storage";
 import { firebaseApp } from "../firebase";
 import { InfinitySpin } from "react-loader-spinner";
@@ -14,6 +15,8 @@ import { Beat as BeatComponent } from "../components/beat";
 import { Beat } from "../app";
 import { Playbar } from "../components/playbar";
 import { getTrackColor } from "../app/color";
+import { PauseIcon } from "@heroicons/react/solid";
+import { CircularProgressbarWithChildren } from "react-circular-progressbar";
 
 const storage = getStorage(firebaseApp);
 
@@ -24,6 +27,13 @@ function getBeatName(fileName: string) {
 function isSame(beatOne: Beat | undefined, beatTwo: Beat | undefined) {
   if (!beatOne || !beatTwo) return false;
   return beatOne.path === beatTwo.path;
+}
+
+export function getProducedDate(metadata: FullMetadata) {
+  return metadata.customMetadata &&
+    Object.keys(metadata.customMetadata).includes("producedOn")
+    ? metadata.customMetadata.producedOn
+    : metadata.timeCreated;
 }
 
 export default function Home() {
@@ -47,7 +57,7 @@ export default function Home() {
           return {
             name: getBeatName(beat.name),
             path: beat.fullPath,
-            creationDate: new Date(metadata.timeCreated), // todo: have custom timecreated
+            creationDate: new Date(getProducedDate(metadata)),
           };
         })
       );
@@ -92,6 +102,22 @@ export default function Home() {
     return () => {
       audio.removeEventListener("loadeddata", setAudioData);
       audio.removeEventListener("timeupdate", setAudioTime);
+      audio.removeEventListener("pause", pause);
+      audio.removeEventListener("play", resume);
+    };
+  });
+
+  useEffect(() => {
+    function handleKeyDown(event: KeyboardEvent) {
+      if (event.key === " " && audioRef.current) {
+        playing ? pause() : resume();
+      }
+    }
+
+    document.addEventListener("keydown", handleKeyDown);
+
+    return () => {
+      document.removeEventListener("keydown", handleKeyDown);
     };
   });
 
@@ -108,6 +134,8 @@ export default function Home() {
     });
   }
 
+  console.log(playing);
+
   function clear() {
     if (audioRef.current) audioRef.current.pause();
     setPlaying(false);
@@ -122,6 +150,7 @@ export default function Home() {
   }
 
   async function resume() {
+    if (!selectedBeat) return;
     if (playing) return;
 
     setPlaying(true);
@@ -163,6 +192,7 @@ export default function Home() {
                   }
                   selected={isSame(selectedBeat, beat)}
                   pause={pause}
+                  percentPlayed={(currentTime / duration) * 100}
                 />
               );
             })}

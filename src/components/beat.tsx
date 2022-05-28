@@ -6,6 +6,8 @@ import { getTrackColor } from "../app/color";
 import { PauseIcon, PlayIcon } from "@heroicons/react/solid";
 import { Transition } from "@headlessui/react";
 import { formatDate } from "../app/time";
+import { CircularProgressbarWithChildren } from "react-circular-progressbar";
+import "react-circular-progressbar/dist/styles.css";
 
 interface BeatProps {
   beat: Beat;
@@ -13,6 +15,7 @@ interface BeatProps {
   play(): void;
   pause(): void;
   selected: boolean;
+  percentPlayed: number;
 }
 
 export function Beat(props: BeatProps) {
@@ -37,7 +40,25 @@ export function Beat(props: BeatProps) {
       >
         <div className={styles.play}>
           {props.playing ? (
-            <PauseIcon className={styles.playIcon} />
+            <CircularProgressbarWithChildren
+              value={props.percentPlayed}
+              strokeWidth={5}
+              className={styles.wtf}
+              styles={{
+                root: {
+                  width: "7em",
+                  height: "7em",
+                },
+                path: {
+                  stroke: "white",
+                },
+                trail: {
+                  display: "none",
+                },
+              }}
+            >
+              <PauseIcon className={styles.playIcon} />
+            </CircularProgressbarWithChildren>
           ) : (
             <PlayIcon className={styles.playIcon} />
           )}
@@ -48,7 +69,7 @@ export function Beat(props: BeatProps) {
         <Avatar
           size={"5em"}
           name={props.beat.name}
-          variant="marble"
+          variant="bauhaus"
           colors={[col, "white"]}
         />
       </div>
