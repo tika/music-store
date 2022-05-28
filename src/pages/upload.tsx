@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useUploadFile } from "react-firebase-hooks/storage";
 import {
   deleteObject,
@@ -24,7 +24,7 @@ function getBeatName(fileName: string) {
 export default function Upload() {
   const [selectedMusic, setSelectedMusic] = useState<File>();
   const [uploadFile, uploading, snapshot, error] = useUploadFile();
-  const [verified, setVerified] = useState<boolean>(true);
+  const [verified, setVerified] = useState<boolean>(false);
   const [code, setCode] = useState("");
   const [beats, setBeats] = useState<Beat[]>([]);
   const [dates, setDates] = useState<string[]>([]);
