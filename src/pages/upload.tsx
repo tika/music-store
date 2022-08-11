@@ -204,7 +204,7 @@ export default function Upload() {
                 </div>
             ) : (
                 <div className={styles.loader}>
-                    <InfinitySpin width={"500"} color={"#64C6CA"} />
+                    <InfinitySpin color={"#64C6CA"} />
                 </div>
             )}
         </div>

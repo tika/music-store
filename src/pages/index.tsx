@@ -16,6 +16,7 @@ import { Beat } from "../app";
 import { Playbar } from "../components/playbar";
 import { getTrackColor } from "../app/color";
 import Link from "next/link";
+import { Title } from "../components/title";
 
 const storage = getStorage(firebaseApp);
 
@@ -167,87 +168,92 @@ export default function Home() {
     }
 
     return (
-        <div className={styles.container}>
-            {!loading ? (
-                <div className={styles.innerContainer}>
-                    <div className={styles.header}>
-                        <div className={styles.pfp}>
-                            <Image
-                                className={styles.pfpImage}
-                                alt={"Insta pfp"}
-                                layout={"fill"}
-                                src={
-                                    "https://instagram.flhr10-1.fna.fbcdn.net/v/t51.2885-19/292782546_1195470934618074_8011048219825522157_n.jpg?stp=dst-jpg_s150x150&_nc_ht=instagram.flhr10-1.fna.fbcdn.net&_nc_cat=106&_nc_ohc=G2VdjszB4AAAX8CO3Oy&edm=ALQROFkBAAAA&ccb=7-5&oh=00_AT_ZLnWjNKv5CBNdK2tSesKPVSVZODYDR0n3QhUmdBwtBA&oe=62FAEAC2&_nc_sid=30a2ef"
-                                }
-                            />
-                        </div>
-                        <div className={styles.headerText}>
-                            <Link href="https://www.instagram.com/tikacookedthis/">
-                                <a className={styles.name}>
-                                    <h1>tikacookedthis</h1>
-                                </a>
-                            </Link>
-                            <h2>beats produced by me</h2>
-                        </div>
-                    </div>
-
-                    <div className={styles.beats}>
-                        {beats.map((beat, i) => {
-                            return (
-                                <BeatComponent
-                                    playing={
-                                        isSame(selectedBeat, beat) && playing
-                                    }
-                                    key={i}
-                                    beat={beat}
-                                    play={() =>
-                                        isSame(selectedBeat, beat) && !playing
-                                            ? resume()
-                                            : play(beat)
-                                    }
-                                    selected={isSame(selectedBeat, beat)}
-                                    pause={pause}
-                                    percentPlayed={
-                                        (currentTime / duration) * 100
+        <>
+            <Title text="tikacookedthis" />
+            <div className={styles.container}>
+                {!loading ? (
+                    <div className={styles.innerContainer}>
+                        <div className={styles.header}>
+                            <div className={styles.pfp}>
+                                <Image
+                                    className={styles.pfpImage}
+                                    alt={"Insta pfp"}
+                                    layout={"fill"}
+                                    src={
+                                        "https://instagram.flhr10-1.fna.fbcdn.net/v/t51.2885-19/292782546_1195470934618074_8011048219825522157_n.jpg?stp=dst-jpg_s150x150&_nc_ht=instagram.flhr10-1.fna.fbcdn.net&_nc_cat=106&_nc_ohc=G2VdjszB4AAAX8CO3Oy&edm=ALQROFkBAAAA&ccb=7-5&oh=00_AT_ZLnWjNKv5CBNdK2tSesKPVSVZODYDR0n3QhUmdBwtBA&oe=62FAEAC2&_nc_sid=30a2ef"
                                     }
                                 />
-                            );
-                        })}
+                            </div>
+                            <div className={styles.headerText}>
+                                <Link href="https://www.instagram.com/tikacookedthis/">
+                                    <a className={styles.name}>
+                                        <h1>tikacookedthis</h1>
+                                    </a>
+                                </Link>
+                                <h2>beats produced by me</h2>
+                            </div>
+                        </div>
+
+                        <div className={styles.beats}>
+                            {beats.map((beat, i) => {
+                                return (
+                                    <BeatComponent
+                                        playing={
+                                            isSame(selectedBeat, beat) &&
+                                            playing
+                                        }
+                                        key={i}
+                                        beat={beat}
+                                        play={() =>
+                                            isSame(selectedBeat, beat) &&
+                                            !playing
+                                                ? resume()
+                                                : play(beat)
+                                        }
+                                        selected={isSame(selectedBeat, beat)}
+                                        pause={pause}
+                                        percentPlayed={
+                                            (currentTime / duration) * 100
+                                        }
+                                    />
+                                );
+                            })}
+                        </div>
+
+                        <Playbar
+                            playing={playing}
+                            beat={selectedBeat}
+                            currentTime={currentTime}
+                            duration={duration}
+                            currentColor={getTrackColor(
+                                selectedBeat ? selectedBeat.name : ""
+                            )}
+                            buffering={buffering}
+                            play={resume}
+                            pause={pause}
+                            setCurrentTime={(val) => {
+                                setCurrentTime(val);
+                                const audio = audioRef.current;
+
+                                if (!audio) return;
+                                audio.currentTime = val;
+                            }}
+                        />
+
+                        <audio ref={audioRef}>
+                            <source src={selectedBeat?.url} />
+                            Your browser does not support the <code>
+                                audio
+                            </code>{" "}
+                            element.
+                        </audio>
                     </div>
-
-                    <Playbar
-                        playing={playing}
-                        beat={selectedBeat}
-                        currentTime={currentTime}
-                        duration={duration}
-                        currentColor={getTrackColor(
-                            selectedBeat ? selectedBeat.name : ""
-                        )}
-                        buffering={buffering}
-                        play={resume}
-                        pause={pause}
-                        setCurrentTime={(val) => {
-                            setCurrentTime(val);
-                            const audio = audioRef.current;
-
-                            if (!audio) return;
-                            audio.currentTime = val;
-                        }}
-                    />
-
-                    <audio ref={audioRef}>
-                        <source src={selectedBeat?.url} />
-                        Your browser does not support the <code>
-                            audio
-                        </code>{" "}
-                        element.
-                    </audio>
-                </div>
-            ) : (
-                <div className={styles.loader}>
-                    <InfinitySpin width={"500"} color={"#64C6CA"} />
-                </div>
-            )}
-        </div>
+                ) : (
+                    <div className={styles.loader}>
+                        <InfinitySpin color={"#64C6CA"} />
+                    </div>
+                )}
+            </div>
+        </>
     );
 }
