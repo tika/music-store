@@ -4,7 +4,7 @@ import { Method } from "./endpoint";
 export async function fetcher<
     T,
     Schema extends ZodSchema<any, any> = ZodSchema<any, any>
-    >(method: Method, endpoint: string, body?: z.infer<Schema>): Promise<T> {
+>(method: Method, endpoint: string, body?: z.infer<Schema>): Promise<T> {
     const url = `/api${endpoint}`;
     const request = await fetch(url, {
         method,

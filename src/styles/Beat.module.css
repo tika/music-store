@@ -1,83 +1,64 @@
 .container {
-  width: 10em;
-  position: relative;
+    width: 10em;
+    position: relative;
 }
 
 .cover {
-  width: 10em;
-  height: 10em;
-  border-radius: 0.5em;
-  display: flex;
-  justify-content: center;
-  align-items: center;
+    width: 10em;
+    height: 10em;
+    border-radius: 0.5em;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
 .title {
-  font-weight: 600;
-  font-size: 1em;
+    font-weight: 600;
+    font-size: 1em;
 }
 
 .date {
-  color: #a5a5a5;
+    color: #a5a5a5;
 }
 
 .play {
-  z-index: 10;
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 10em;
-  height: 10em;
-  display: flex;
-  backdrop-filter: blur(10px);
-  justify-content: center;
-  align-items: center;
-  border-radius: 0.5em;
+    z-index: 10;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 10em;
+    height: 10em;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    backdrop-filter: blur(10px) opacity(0);
+    border-radius: 0.5em;
+    transition: 500ms;
+}
+
+.play:hover {
+    backdrop-filter: blur(10px) opacity(1);
 }
 
 .playIcon {
-  width: 3em;
-  height: 3em;
-  color: white;
-}
-
-.enter {
-  transition: 500ms opacity;
-}
-
-.enterFrom {
-  opacity: 0;
-}
-
-.enterTo {
-  opacity: 100;
-}
-
-.leave {
-  transition: 500ms opacity;
-}
-
-.leaveFrom {
-  opacity: 100;
-}
-
-.leaveTo {
-  opacity: 0;
+    width: 3em;
+    height: 3em;
+    color: white;
 }
 
 @media (max-width: 670px) {
-  .container {
-    width: 15em;
-    position: relative;
-  }
+    .container {
+        width: 15em;
+        position: relative;
+    }
 
-  .cover {
-    width: 15em;
-    height: 15em;
-  }
+    .cover {
+        width: 15em;
+        height: 15em;
+    }
 
-  .play {
-    width: 15em;
-    height: 15em;
-  }
+    .play {
+        width: 15em;
+        height: 15em;
+    }
 }

@@ -1,77 +1,81 @@
 .container {
-  overflow: auto;
-  display: flex;
-  justify-content: center;
+    overflow: auto;
+    display: flex;
+    justify-content: center;
 }
 
 .innerContainer {
-  width: 50vw;
+    width: 50vw;
 }
 
 .header {
-  display: flex;
-  flex-direction: row;
-  position: fixed;
-  z-index: 50;
-  width: 100%;
-  padding: 2em 0;
-  top: 0;
-  align-items: center;
-  gap: 1em;
-  background-color: white;
+    display: flex;
+    flex-direction: row;
+    position: fixed;
+    z-index: 50;
+    width: 100%;
+    padding: 2em 0;
+    top: 0;
+    align-items: center;
+    gap: 1em;
+    background-color: white;
 }
 
 .headerText > h2 {
-  font-weight: 400;
-  font-size: 1em;
+    font-weight: 400;
+    font-size: 1em;
 }
 
 .pfp {
-  position: relative;
-  width: 3em;
-  height: 3em;
+    position: relative;
+    width: 3em;
+    height: 3em;
 }
 
 .pfpImage {
-  border-radius: 100em;
+    border-radius: 100em;
 }
 
 .progressContainer {
-  width: 20em;
-  height: 5px;
+    width: 20em;
+    height: 5px;
 }
 
 .beats {
-  display: flex;
-  column-gap: 1em;
-  row-gap: 1em;
-  margin-top: 8em;
-  margin-bottom: 10em;
-  flex-wrap: wrap;
+    display: flex;
+    column-gap: 1em;
+    row-gap: 1em;
+    margin-top: 8em;
+    margin-bottom: 10em;
+    flex-wrap: wrap;
 }
 
 .loader {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
 }
 
 .playbar {
-  width: 100vw;
-  height: 100vh;
-  z-index: 10;
-  top: 0;
-  left: 0;
-  position: absolute;
+    width: 100vw;
+    height: 100vh;
+    z-index: 10;
+    top: 0;
+    left: 0;
+    position: absolute;
 }
 
 @media (max-width: 670px) {
-  .innerContainer {
-    width: 75vw;
-  }
+    .innerContainer {
+        width: 75vw;
+    }
 
-  .beats {
-    justify-content: center;
-  }
+    .beats {
+        justify-content: center;
+    }
+}
+
+.name:hover {
+    text-decoration: underline;
 }

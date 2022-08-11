@@ -14,7 +14,9 @@ export function createEndpoint<Resource>(
 
         if (!handler) {
             return res.status(405).json({
-                message: `You must ${supportedMethods.join(", ")} to this endpoint!`,
+                message: `You must ${supportedMethods.join(
+                    ", "
+                )} to this endpoint!`,
             });
         }
 
@@ -29,12 +31,16 @@ export function createEndpoint<Resource>(
                 const issues = err.issues.map((it) => {
                     return { information: it.message, fields: it.path };
                 });
-                return res.status(422).json({ message: "Invalid body", issues });
+                return res
+                    .status(422)
+                    .json({ message: "Invalid body", issues });
             }
 
             if (err instanceof Error) {
                 res.status(500).json({
-                    message: process.env.NODE_ENV ? err.message : "Something went wrong.",
+                    message: process.env.NODE_ENV
+                        ? err.message
+                        : "Something went wrong.",
                 });
             }
         }
